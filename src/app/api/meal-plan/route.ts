@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServiceClient } from "@/lib/supabase";
 import { sendPushToAll } from "@/lib/web-push";
 import { verifyApiKey, getTomorrowIST } from "@/lib/helpers";
+import { getDefaultFamilyId } from "@/lib/family";
 
 export async function POST(request: NextRequest) {
   if (!verifyApiKey(request)) {
@@ -12,18 +13,20 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
   const supabase = getServiceClient();
+  const familyId = getDefaultFamilyId();
 
   const { data, error } = await supabase
     .from("meal_plans")
     .upsert(
       {
+        family_id: familyId,
         date: body.date,
         day: body.day,
         plan_data: body.plan_data,
         dinner_options: body.dinner_options || [],
         status: body.dinner_options?.length > 0 ? "voting_open" : "finalized",
       },
-      { onConflict: "date" }
+      { onConflict: "family_id,date" }
     )
     .select()
     .single();
@@ -35,7 +38,8 @@ export async function POST(request: NextRequest) {
   // Send push notifications
   const { data: subs } = await supabase
     .from("push_subscriptions")
-    .select("subscription");
+    .select("subscription")
+    .eq("family_id", familyId);
 
   if (subs && subs.length > 0) {
     await sendPushToAll(subs, {
@@ -50,11 +54,13 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   const supabase = getServiceClient();
+  const familyId = getDefaultFamilyId();
   const date = request.nextUrl.searchParams.get("date") || getTomorrowIST();
 
   const { data, error } = await supabase
     .from("meal_plans")
     .select("*")
+    .eq("family_id", familyId)
     .eq("date", date)
     .single();
 

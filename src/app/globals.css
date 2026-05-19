@@ -2,8 +2,69 @@
 @tailwind components;
 @tailwind utilities;
 
+:root, [data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --bg-card: #ffffff;
+  --bg-input: #f0f0f0;
+  --bg-button: #e5e5e5;
+  --bg-button-hover: #d5d5d5;
+  --text-primary: #111111;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+  --border-color: #e5e5e5;
+  --border-subtle: #f0f0f0;
+  --accent: #F97316;
+  --skeleton-from: #e5e5e5;
+  --skeleton-via: #f0f0f0;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #000000;
+  --bg-secondary: #1a1a1a;
+  --bg-card: #1a1a1a;
+  --bg-input: #2a2a2a;
+  --bg-button: #2a2a2a;
+  --bg-button-hover: #333333;
+  --text-primary: #ffffff;
+  --text-secondary: #a3a3a3;
+  --text-muted: #6b7280;
+  --border-color: #2a2a2a;
+  --border-subtle: #1f1f1f;
+  --accent: #F97316;
+  --skeleton-from: #1a1a1a;
+  --skeleton-via: #2a2a2a;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: contain;
+}
+
+/* Skeleton shimmer animation */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-from) 25%,
+    var(--skeleton-via) 50%,
+    var(--skeleton-from) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 0.75rem;
 }

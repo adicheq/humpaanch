@@ -14,14 +14,29 @@ export const MEMBERS: Member[] = [
   { id: "aditya", name: "Aditya", emoji: "Ad", color: "bg-green-500" },
 ];
 
+export interface MealSlotData {
+  default: string;
+  kamini?: string;
+  riya?: string;
+  arth?: string;
+  aditya?: string;
+  nyra?: string;
+}
+
 export interface MealPlanData {
-  breakfast: { adults: string; kamini?: string; nyra: string };
-  lunchbox_nyra: string;
-  lunch: { main: string; nyra: string };
-  dinner_kamini: string;
-  dinner_nyra: string;
-  dinner_others: string;
+  // New format
+  breakfast: MealSlotData;
+  lunchbox_nyra?: string;
+  lunch: MealSlotData;
+  dinner: MealSlotData;
+  dinner_time_kamini?: string;
+  dinner_time_nyra?: string;
+  dinner_time_others?: string;
   need_to_buy?: string;
+
+  // Legacy fields (old format - kept for backward compat)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
 }
 
 export interface MealPlan {
@@ -35,10 +50,11 @@ export interface MealPlan {
   created_at: string;
 }
 
-export type MealSlot =
+export type MealSlotKey =
   | "breakfast"
   | "lunchbox"
   | "lunch"
+  | "dinner"
   | "dinner_kamini"
   | "dinner_nyra"
   | "dinner_others";
@@ -46,10 +62,11 @@ export type MealSlot =
 export interface MealReaction {
   id: string;
   meal_plan_date: string;
-  meal_slot: MealSlot;
+  meal_slot: MealSlotKey;
   member_id: MemberId;
-  reaction: "ok" | "suggest_change";
+  reaction: "ok" | "suggest_change" | "agree" | "accepted";
   comment: string | null;
+  agrees_with: string | null;
   created_at: string;
 }
 

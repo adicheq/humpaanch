@@ -2,12 +2,14 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServiceClient } from "@/lib/supabase";
+import { getDefaultFamilyId } from "@/lib/family";
 
 export async function GET(request: NextRequest) {
   const supabase = getServiceClient();
+  const familyId = getDefaultFamilyId();
   const memberId = request.nextUrl.searchParams.get("member_id");
 
-  let query = supabase.from("member_tastes").select("*");
+  let query = supabase.from("member_tastes").select("*").eq("family_id", familyId);
   if (memberId) {
     query = query.eq("member_id", memberId);
   }
@@ -24,12 +26,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const { member_id, category, items } = await request.json();
   const supabase = getServiceClient();
+  const familyId = getDefaultFamilyId();
 
   const { data, error } = await supabase
     .from("member_tastes")
     .upsert(
-      { member_id, category, items, updated_at: new Date().toISOString() },
-      { onConflict: "member_id,category" }
+      { family_id: familyId, member_id, category, items, updated_at: new Date().toISOString() },
+      { onConflict: "family_id,member_id,category" }
     )
     .select()
     .single();

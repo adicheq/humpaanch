@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { MemberId, MealPlan, Vote } from "@/lib/types";
 import { getTomorrowIST, isVotingOpen } from "@/lib/helpers";
 import MemberPicker from "@/components/MemberPicker";
 import BottomNav from "@/components/BottomNav";
 import VotingCard from "@/components/VotingCard";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function VotePage() {
   const [memberId, setMemberId] = useState<MemberId | null>(null);
@@ -59,27 +61,39 @@ export default function VotePage() {
   const hasOptions = plan && plan.dinner_options && plan.dinner_options.length > 0;
 
   return (
-    <div className="flex flex-col min-h-screen pb-20">
-      <header className="sticky top-0 z-10 bg-orange-500 text-white px-4 py-3 shadow-md">
-        <h1 className="text-xl font-bold">Vote for Dinner</h1>
-        {plan && (
-          <p className="text-orange-100 text-sm">{plan.day} &middot; {plan.date}</p>
-        )}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className="flex flex-col min-h-screen pb-20"
+    >
+      <header className="sticky top-0 z-10 bg-[var(--bg-primary)] text-[var(--text-primary)] px-4 py-3 flex items-center justify-between border-b border-[var(--border-color)]">
+        <div>
+          <h1 className="text-xl font-bold">Vote for Dinner</h1>
+          {plan && (
+            <p className="text-[var(--text-secondary)] text-sm">{plan.day} &middot; {plan.date}</p>
+          )}
+        </div>
+        <ThemeToggle />
       </header>
 
       <main className="flex-1 px-4 py-4">
         {loading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="animate-spin w-8 h-8 border-4 border-orange-300 border-t-orange-500 rounded-full" />
+            <div className="animate-spin w-8 h-8 border-4 border-[var(--border-color)] border-t-[var(--text-primary)] rounded-full" />
           </div>
         ) : !hasOptions ? (
-          <div className="flex flex-col items-center justify-center h-64 text-center">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex flex-col items-center justify-center h-64 text-center"
+          >
             <span className="text-4xl mb-3" role="img" aria-label="plate">&#127869;</span>
-            <p className="text-lg font-semibold text-gray-700">No voting today</p>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-lg font-semibold text-[var(--text-primary)]">No voting today</p>
+            <p className="text-sm text-[var(--text-secondary)] mt-1">
               Dinner has already been decided, or the plan isn&apos;t ready yet.
             </p>
-          </div>
+          </motion.div>
         ) : (
           <VotingCard
             options={plan!.dinner_options}
@@ -92,6 +106,6 @@ export default function VotePage() {
       </main>
 
       <BottomNav currentTab="vote" />
-    </div>
+    </motion.div>
   );
 }
