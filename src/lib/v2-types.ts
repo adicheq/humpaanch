@@ -152,10 +152,10 @@ export const REFRESH_REASONS: { tag: RefreshReason; label: string }[] = [
 
 export const FINISH_RATE_OPTIONS: { value: FinishRate; label: string; emoji: string }[] =
   [
-    { value: "loved", label: "Loved it", emoji: "🤩" },
-    { value: "ate_all", label: "Ate everything", emoji: "✅" },
-    { value: "ate_some", label: "Ate some", emoji: "🍽️" },
-    { value: "refused", label: "Didn't eat", emoji: "🙅" },
-    { value: "ordered_out", label: "Ordered out instead", emoji: "📦" },
-    { value: "skipped", label: "Skipped this meal", emoji: "⏭️" },
+    { value: "loved", label: "Loved it", emoji: "♥" },
+    { value: "ate_all", label: "Finished", emoji: "✓" },
+    { value: "ate_some", label: "Ate some", emoji: "½" },
+    { value: "refused", label: "Didn't eat", emoji: "✕" },
+    { value: "ordered_out", label: "Ordered out", emoji: "→" },
+    { value: "skipped", label: "Skipped", emoji: "—" },
   ];

@@ -18,7 +18,7 @@ interface PersonRow {
 
 interface MealSectionProps {
   title: string;
-  emoji: string;
+  emoji: string | React.ReactNode;
   slot: MealSlotData;
   mealSlot: string;
   date?: string;
@@ -250,11 +250,12 @@ export default function MealSection({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
       className={`bg-[var(--bg-card)] rounded-xl border border-[var(--border-color)] overflow-hidden transition-opacity ${skippedByMe ? "opacity-50" : ""}`}
+      style={{ boxShadow: "var(--card-shadow)" }}
     >
       {/* Section Header */}
       <div className="bg-[var(--bg-secondary)] px-4 py-2.5 border-b border-[var(--border-color)]">
         <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
-          <span className="text-base">{emoji}</span>
+          <span className="text-[var(--text-secondary)]">{typeof emoji === "string" ? <span className="text-base">{emoji}</span> : emoji}</span>
           {title}
           {skippedByMe && (
             <span className="text-[10px] font-medium bg-amber-900/30 text-amber-400 px-2 py-0.5 rounded-full">

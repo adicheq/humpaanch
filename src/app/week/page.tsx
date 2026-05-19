@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { Sun, Utensils, Moon } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 
 interface DayEntry {
@@ -108,11 +109,11 @@ export default function WeekPage() {
                 </div>
                 {d.plan ? (
                   <div className="px-4 py-3 space-y-1.5">
-                    <Row label="🌅 B" value={d.plan.plan_data?.breakfast?.default} />
-                    <Row label="🍽️ L" value={d.plan.plan_data?.lunch?.default} />
-                    <Row label="🌙 D" value={d.plan.plan_data?.dinner?.default} />
+                    <Row label={<><Sun size={10} /> B</>} value={d.plan.plan_data?.breakfast?.default} />
+                    <Row label={<><Utensils size={10} /> L</>} value={d.plan.plan_data?.lunch?.default} />
+                    <Row label={<><Moon size={10} /> D</>} value={d.plan.plan_data?.dinner?.default} />
                     {d.plan.plan_data?.dinner?.kamini && (
-                      <Row label="🌙 K" value={d.plan.plan_data.dinner.kamini} subtle />
+                      <Row label={<><Moon size={10} /> K</>} value={d.plan.plan_data.dinner.kamini} subtle />
                     )}
                   </div>
                 ) : (
@@ -131,14 +132,14 @@ export default function WeekPage() {
   );
 }
 
-function Row({ label, value, subtle }: { label: string; value?: string; subtle?: boolean }) {
+function Row({ label, value, subtle }: { label: React.ReactNode; value?: string; subtle?: boolean }) {
   if (!value) return null;
   return (
     <div className="flex items-start gap-2">
       <span
-        className={`text-[10px] uppercase tracking-wide font-semibold ${
+        className={`flex items-center gap-0.5 text-[10px] uppercase tracking-wide font-semibold ${
           subtle ? "text-[var(--text-muted)]" : "text-[var(--text-secondary)]"
-        } w-7 mt-0.5`}
+        } w-8 mt-0.5`}
       >
         {label}
       </span>

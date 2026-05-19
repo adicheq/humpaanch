@@ -3,18 +3,19 @@
 @tailwind utilities;
 
 :root, [data-theme="light"] {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f5f5f5;
+  --bg-primary: #fafaf9;
+  --bg-secondary: #f5f4f1;
   --bg-card: #ffffff;
-  --bg-input: #f0f0f0;
-  --bg-button: #e5e5e5;
-  --bg-button-hover: #d5d5d5;
-  --text-primary: #111111;
-  --text-secondary: #666666;
-  --text-muted: #999999;
-  --border-color: #e5e5e5;
-  --border-subtle: #f0f0f0;
-  --accent: #F97316;
+  --bg-input: #f0efec;
+  --bg-button: #edecea;
+  --bg-button-hover: #e0dfdd;
+  --text-primary: #1a1a1a;
+  --text-secondary: #525252;
+  --text-muted: #a3a3a3;
+  --border-color: #e5e4e2;
+  --border-subtle: #f0efed;
+  --accent: #ea580c;
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
   --skeleton-from: #e5e5e5;
   --skeleton-via: #f0f0f0;
 }
@@ -32,6 +33,7 @@
   --border-color: #2a2a2a;
   --border-subtle: #1f1f1f;
   --accent: #F97316;
+  --card-shadow: none;
   --skeleton-from: #1a1a1a;
   --skeleton-via: #2a2a2a;
 }
@@ -46,6 +48,10 @@ body {
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: contain;
 }
+
+/* Scrollbar hide utility */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* Skeleton shimmer animation */
 @keyframes skeleton-shimmer {

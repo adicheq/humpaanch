@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Sun, Utensils, Moon, Backpack, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { MemberId, MealPlan, MEMBERS, MealReaction } from "@/lib/types";
 import { normalizePlanData, getTodayIST, isMealTimePassed, getTomorrowIST } from "@/lib/helpers";
@@ -305,7 +305,9 @@ export default function HomePage() {
               animate={{ opacity: 1 }}
               className="flex flex-col items-center justify-center text-center py-10"
             >
-              <p className="text-5xl mb-4">&#128336;</p>
+              <div className="w-14 h-14 rounded-full bg-[var(--bg-button)] flex items-center justify-center mb-4">
+                <Clock size={28} className="text-[var(--text-secondary)]" />
+              </div>
               <p className="text-lg font-semibold text-[var(--text-primary)]">Tomorrow&apos;s plan not ready yet</p>
               <p className="text-sm text-[var(--text-secondary)] mt-1 mb-5">Tap below to generate it now!</p>
 
@@ -391,26 +393,26 @@ export default function HomePage() {
 
                 <MealSection
                   title="Breakfast"
-                  emoji="🌅"
+                  emoji={<Sun size={16} />}
                   slot={yesterdayPlan.plan_data.breakfast}
                   mealSlot="breakfast"
                 />
 
                 {yesterdayPlan.plan_data.lunchbox_nyra && (
-                  <MealCard title="🎒 Nyra's Lunch Box" mealSlot="lunchbox" date={yesterdayPlan.date} memberId={memberId || ""}
+                  <MealCard title="Nyra's Lunch Box" mealSlot="lunchbox" date={yesterdayPlan.date} memberId={memberId || ""}
                     content={<p className="text-[var(--text-primary)]">{yesterdayPlan.plan_data.lunchbox_nyra}</p>} />
                 )}
 
                 <MealSection
                   title="Lunch"
-                  emoji="🍽️"
+                  emoji={<Utensils size={16} />}
                   slot={yesterdayPlan.plan_data.lunch}
                   mealSlot="lunch"
                 />
 
                 <MealSection
                   title="Dinner"
-                  emoji="🌙"
+                  emoji={<Moon size={16} />}
                   slot={yesterdayPlan.plan_data.dinner}
                   mealSlot="dinner"
                   timing={{
@@ -442,7 +444,7 @@ export default function HomePage() {
             <motion.div variants={staggerItem}>
               <MealSection
                 title="Breakfast"
-                emoji="🌅"
+                emoji={<Sun size={16} />}
                 slot={plan.plan_data.breakfast}
                 mealSlot="breakfast"
                 date={plan.date}
@@ -469,7 +471,7 @@ export default function HomePage() {
             {/* Nyra's Lunch Box */}
             {plan.plan_data.lunchbox_nyra && (
               <motion.div variants={staggerItem}>
-                <MealCard title="🎒 Nyra's Lunch Box" mealSlot="lunchbox" date={plan.date} memberId={memberId} initialReaction={(reactions["lunchbox"]?.reaction === "ok" || reactions["lunchbox"]?.reaction === "suggest_change") ? reactions["lunchbox"].reaction : null} initialComment={reactions["lunchbox"]?.comment || ""}
+                <MealCard title="Nyra's Lunch Box" mealSlot="lunchbox" date={plan.date} memberId={memberId} initialReaction={(reactions["lunchbox"]?.reaction === "ok" || reactions["lunchbox"]?.reaction === "suggest_change") ? reactions["lunchbox"].reaction : null} initialComment={reactions["lunchbox"]?.comment || ""}
                   content={<p className="text-[var(--text-primary)]">{plan.plan_data.lunchbox_nyra}</p>} />
               </motion.div>
             )}
@@ -478,7 +480,7 @@ export default function HomePage() {
             <motion.div variants={staggerItem}>
               <MealSection
                 title="Lunch"
-                emoji="🍽️"
+                emoji={<Utensils size={16} />}
                 slot={plan.plan_data.lunch}
                 mealSlot="lunch"
                 date={plan.date}
@@ -506,7 +508,7 @@ export default function HomePage() {
             <motion.div variants={staggerItem}>
               <MealSection
                 title="Dinner"
-                emoji="🌙"
+                emoji={<Moon size={16} />}
                 slot={plan.plan_data.dinner}
                 mealSlot="dinner"
                 date={plan.date}

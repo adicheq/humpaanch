@@ -70,6 +70,7 @@ export default function MealCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
       className="bg-[var(--bg-card)] rounded-xl p-4 space-y-3 border border-[var(--border-color)]"
+      style={{ boxShadow: "var(--card-shadow)" }}
     >
       <div>
         <h3 className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wide">

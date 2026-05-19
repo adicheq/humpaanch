@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Sun, Utensils, Moon } from "lucide-react";
 import { MemberId, MealPlan, MEMBERS } from "@/lib/types";
 import { normalizePlanData } from "@/lib/helpers";
 import MemberPicker from "@/components/MemberPicker";
@@ -177,18 +177,18 @@ function DayCard({
           <p className="text-sm font-medium text-[var(--text-primary)] mt-0.5">{plan.date}</p>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
             {pd.breakfast?.default && (
-              <span className="text-[11px] bg-amber-900/30 text-amber-400 px-2 py-0.5 rounded-full">
-                🌅 {truncate(pd.breakfast.default, 25)}
+              <span className="text-[11px] bg-amber-900/30 text-amber-400 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                <Sun size={10} /> {truncate(pd.breakfast.default, 25)}
               </span>
             )}
             {pd.lunch?.default && (
-              <span className="text-[11px] bg-blue-900/30 text-blue-400 px-2 py-0.5 rounded-full">
-                🍽️ {truncate(pd.lunch.default, 25)}
+              <span className="text-[11px] bg-blue-900/30 text-blue-400 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                <Utensils size={10} /> {truncate(pd.lunch.default, 25)}
               </span>
             )}
             {pd.dinner?.default && (
-              <span className="text-[11px] bg-purple-900/30 text-purple-400 px-2 py-0.5 rounded-full">
-                🌙 {truncate(pd.dinner.default, 25)}
+              <span className="text-[11px] bg-purple-900/30 text-purple-400 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                <Moon size={10} /> {truncate(pd.dinner.default, 25)}
               </span>
             )}
           </div>
@@ -213,20 +213,20 @@ function DayCard({
             className="overflow-hidden"
           >
             <div className="px-3 pb-4 space-y-3 border-t border-[var(--border-color)] pt-3">
-              <MealSection title="Breakfast" emoji="🌅" slot={pd.breakfast} mealSlot="breakfast" />
+              <MealSection title="Breakfast" emoji={<Sun size={16} />} slot={pd.breakfast} mealSlot="breakfast" />
 
               {pd.lunchbox_nyra && (
                 <div className="bg-violet-900/20 rounded-lg px-3 py-2">
-                  <p className="text-[10px] text-violet-400 uppercase tracking-wide font-semibold">🎒 Nyra&apos;s Lunch Box</p>
+                  <p className="text-[10px] text-violet-400 uppercase tracking-wide font-semibold">Nyra&apos;s Lunch Box</p>
                   <p className="text-sm text-violet-300">{pd.lunchbox_nyra}</p>
                 </div>
               )}
 
-              <MealSection title="Lunch" emoji="🍽️" slot={pd.lunch} mealSlot="lunch" />
+              <MealSection title="Lunch" emoji={<Utensils size={16} />} slot={pd.lunch} mealSlot="lunch" />
 
               <MealSection
                 title="Dinner"
-                emoji="🌙"
+                emoji={<Moon size={16} />}
                 slot={pd.dinner}
                 mealSlot="dinner"
                 timing={{
