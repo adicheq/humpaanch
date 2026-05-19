@@ -537,10 +537,11 @@ export default function HomePage() {
             {plan.plan_data.need_to_buy && (
               <motion.div
                 variants={staggerItem}
-                className="bg-yellow-900/20 border border-yellow-800/30 rounded-xl p-4"
+                className="rounded-xl p-4"
+                style={{ background: "var(--alert-bg)", border: "1px solid var(--alert-border)" }}
               >
-                <h3 className="text-sm font-semibold text-yellow-400 mb-1">Need to Buy</h3>
-                <p className="text-sm text-yellow-300/80">{plan.plan_data.need_to_buy}</p>
+                <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--alert-title)" }}>Need to Buy</h3>
+                <p className="text-sm" style={{ color: "var(--alert-text)" }}>{plan.plan_data.need_to_buy}</p>
               </motion.div>
             )}
           </motion.div>

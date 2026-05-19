@@ -16,6 +16,10 @@
   --border-subtle: #f0efed;
   --accent: #ea580c;
   --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --alert-bg: #fffbeb;
+  --alert-border: #fde68a;
+  --alert-title: #92400e;
+  --alert-text: #b45309;
   --skeleton-from: #e5e5e5;
   --skeleton-via: #f0f0f0;
 }
@@ -34,6 +38,10 @@
   --border-subtle: #1f1f1f;
   --accent: #F97316;
   --card-shadow: none;
+  --alert-bg: rgba(113, 63, 18, 0.2);
+  --alert-border: rgba(113, 63, 18, 0.3);
+  --alert-title: #facc15;
+  --alert-text: rgba(253, 224, 71, 0.8);
   --skeleton-from: #1a1a1a;
   --skeleton-via: #2a2a2a;
 }
