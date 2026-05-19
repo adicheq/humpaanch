@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Flame } from "lucide-react";
 import { MealSlotData, MEMBERS, MealReaction } from "@/lib/types";
 import { FOOD_LIBRARY } from "@/data/food-library";
 import RefreshSlotMenu from "@/components/RefreshSlotMenu";
 import FinishRateBar from "@/components/FinishRateBar";
+import FavoriteButton from "@/components/FavoriteButton";
 
 interface PersonRow {
   label: string;
@@ -29,6 +30,10 @@ interface MealSectionProps {
   allReactions?: MealReaction[];
   showRefresh?: boolean;
   showFinishRate?: boolean;
+  showFavorites?: boolean;
+  favorites?: Set<string>;
+  onFavoriteToggle?: (dishName: string, mealSlot: string) => void;
+  skippedByMe?: boolean;
   onSlotUpdated?: () => void;
 }
 
@@ -132,6 +137,10 @@ export default function MealSection({
   allReactions = [],
   showRefresh = false,
   showFinishRate = false,
+  showFavorites = false,
+  favorites,
+  onFavoriteToggle,
+  skippedByMe = false,
   onSlotUpdated,
 }: MealSectionProps) {
   const [reaction, setReaction] = useState<"ok" | "suggest_change" | null>(initialReaction);
@@ -140,6 +149,13 @@ export default function MealSection({
   const [submitting, setSubmitting] = useState(false);
   const [localReactions, setLocalReactions] = useState<MealReaction[]>(allReactions);
   const [planUpdated, setPlanUpdated] = useState(false);
+  const [refreshRationale, setRefreshRationale] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!refreshRationale) return;
+    const timer = setTimeout(() => setRefreshRationale(null), 15000);
+    return () => clearTimeout(timer);
+  }, [refreshRationale]);
 
   const rows = getPersonRows(slot, timing);
 
@@ -233,13 +249,18 @@ export default function MealSection({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className="bg-[var(--bg-card)] rounded-xl border border-[var(--border-color)] overflow-hidden"
+      className={`bg-[var(--bg-card)] rounded-xl border border-[var(--border-color)] overflow-hidden transition-opacity ${skippedByMe ? "opacity-50" : ""}`}
     >
       {/* Section Header */}
       <div className="bg-[var(--bg-secondary)] px-4 py-2.5 border-b border-[var(--border-color)]">
         <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
           <span className="text-base">{emoji}</span>
           {title}
+          {skippedByMe && (
+            <span className="text-[10px] font-medium bg-amber-900/30 text-amber-400 px-2 py-0.5 rounded-full">
+              Out
+            </span>
+          )}
           <span className="flex items-center gap-1 ml-auto">
             {planUpdated && (
               <span className="text-[10px] font-medium bg-green-900/30 text-green-400 px-2 py-0.5 rounded-full">
@@ -258,7 +279,8 @@ export default function MealSection({
                 mealSlot={mealSlot as "breakfast" | "lunch" | "dinner"}
                 memberScope="default"
                 triggeredBy={memberId}
-                onSuccess={() => {
+                onSuccess={(_newValue, rationale) => {
+                  setRefreshRationale(rationale || null);
                   if (onSlotUpdated) onSlotUpdated();
                 }}
               />
@@ -307,16 +329,29 @@ export default function MealSection({
                       mealSlot={mealSlot as "breakfast" | "lunch" | "dinner"}
                       memberScope={row.label.toLowerCase()}
                       triggeredBy={memberId}
-                      onSuccess={() => {
+                      onSuccess={(_newValue, rationale) => {
+                        setRefreshRationale(rationale || null);
                         if (onSlotUpdated) onSlotUpdated();
                       }}
                     />
                   </span>
                 )}
               </div>
-              <p className={`text-sm ${row.colorClass} ${row.label === "Everyone" ? "font-medium" : ""}`}>
-                {row.value}
-              </p>
+              <div className="flex items-start gap-1">
+                <p className={`text-sm flex-1 ${row.colorClass} ${row.label === "Everyone" ? "font-medium" : ""}`}>
+                  {row.value}
+                </p>
+                {showFavorites && memberId && (
+                  <FavoriteButton
+                    memberId={memberId}
+                    dishName={row.value}
+                    mealSlot={mealSlot}
+                    date={date}
+                    isFavorite={favorites?.has(row.value) || false}
+                    onToggle={() => { if (onFavoriteToggle) onFavoriteToggle(row.value, mealSlot); }}
+                  />
+                )}
+              </div>
               {showRowFinish && (
                 <div className="mt-2">
                   <FinishRateBar
@@ -332,6 +367,27 @@ export default function MealSection({
           );
         })}
       </div>
+
+      {/* Refresh rationale callout */}
+      <AnimatePresence>
+        {refreshRationale && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="px-4 py-2.5 bg-blue-900/15 border-t border-blue-800/30"
+          >
+            <p className="text-[11px] text-blue-400 font-medium mb-0.5">Why this pick?</p>
+            <p className="text-xs text-blue-300/80">{refreshRationale}</p>
+            <button
+              onClick={() => setRefreshRationale(null)}
+              className="text-[10px] text-blue-400/60 mt-1 hover:text-blue-400"
+            >
+              Dismiss
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Suggestions from others */}
       {showReactions && suggestions.length > 0 && (

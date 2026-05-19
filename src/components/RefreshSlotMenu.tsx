@@ -62,10 +62,11 @@ export default function RefreshSlotMenu({
       <motion.button
         whileTap={{ scale: 0.92 }}
         onClick={() => setOpen(true)}
-        className="w-7 h-7 rounded-full bg-[var(--bg-button)] hover:bg-[var(--bg-button-hover)] flex items-center justify-center text-[var(--text-secondary)]"
+        className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[var(--bg-button)] hover:bg-[var(--bg-button-hover)] text-[var(--text-secondary)] text-[11px] font-medium"
         title="Refresh this slot"
       >
-        <RefreshCw size={13} />
+        <RefreshCw size={12} />
+        <span>Try another</span>
       </motion.button>
 
       <AnimatePresence>

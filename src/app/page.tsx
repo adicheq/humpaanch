@@ -3,12 +3,16 @@
 import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles } from "lucide-react";
+import { toast } from "sonner";
 import { MemberId, MealPlan, MEMBERS, MealReaction } from "@/lib/types";
-import { normalizePlanData } from "@/lib/helpers";
+import { normalizePlanData, getTodayIST, isMealTimePassed, getTomorrowIST } from "@/lib/helpers";
+import { MealFavorite } from "@/lib/v2-types";
 import MemberPicker from "@/components/MemberPicker";
 import BottomNav from "@/components/BottomNav";
 import MealCard from "@/components/MealCard";
 import MealSection from "@/components/MealSection";
+import MealRatingPrompt from "@/components/MealRatingPrompt";
+import SkipMeBar from "@/components/SkipMeBar";
 import ThemeToggle from "@/components/ThemeToggle";
 
 interface Reaction {
@@ -53,6 +57,10 @@ export default function HomePage() {
   const [showPicker, setShowPicker] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [genError, setGenError] = useState<string | null>(null);
+  const [finishLogs, setFinishLogs] = useState<Record<string, string>>({});
+  const [favorites, setFavorites] = useState<MealFavorite[]>([]);
+  const [favSet, setFavSet] = useState<Set<string>>(new Set());
+  const [skipContexts, setSkipContexts] = useState<string[]>([]);
 
   const generatePlan = async () => {
     setGenerating(true);
@@ -96,7 +104,11 @@ export default function HomePage() {
 
         // Fetch saved reactions for this date
         if (memberId && planData?.date) {
-          const reactRes = await fetch(`/api/reactions?date=${planData.date}`);
+          const [reactRes, finishRes, ctxRes] = await Promise.all([
+            fetch(`/api/reactions?date=${planData.date}`),
+            fetch(`/api/finish-log?date=${planData.date}&member_id=${memberId}`),
+            fetch(`/api/context?date=${planData.date}`),
+          ]);
           if (reactRes.ok) {
             const fetchedReactions: MealReaction[] = await reactRes.json();
             setAllReactions(fetchedReactions);
@@ -105,6 +117,24 @@ export default function HomePage() {
               .filter((r) => r.member_id === memberId && (r.reaction === "ok" || r.reaction === "suggest_change"))
               .forEach((r) => { myReactions[r.meal_slot] = r; });
             setReactions(myReactions);
+          }
+          if (finishRes.ok) {
+            const logs = await finishRes.json();
+            const logMap: Record<string, string> = {};
+            for (const l of logs) { if (l.member_id === memberId) logMap[l.meal_slot] = l.finish_rate; }
+            setFinishLogs(logMap);
+          }
+          if (ctxRes.ok) {
+            const ctxs = await ctxRes.json();
+            const mySkips: string[] = [];
+            for (const c of ctxs) {
+              if (c.member_id !== memberId || c.type !== "going_out") continue;
+              if (c.note?.includes("breakfast")) mySkips.push("breakfast");
+              else if (c.note?.includes("lunch")) mySkips.push("lunch");
+              else if (c.note?.includes("dinner")) mySkips.push("dinner");
+              else mySkips.push("breakfast", "lunch", "dinner");
+            }
+            setSkipContexts(mySkips);
           }
         }
       } else {
@@ -134,7 +164,16 @@ export default function HomePage() {
   }, [memberId]);
 
   useEffect(() => {
-    if (memberId) fetchPlan();
+    if (memberId) {
+      fetchPlan();
+      fetch(`/api/favorites?member_id=${memberId}`)
+        .then((r) => r.json())
+        .then((favs: MealFavorite[]) => {
+          setFavorites(favs);
+          setFavSet(new Set(favs.map((f) => f.dish_name)));
+        })
+        .catch(() => {});
+    }
   }, [memberId, fetchPlan]);
 
   const handleMemberSelect = (id: MemberId) => {
@@ -169,6 +208,24 @@ export default function HomePage() {
       });
     }
   }, [memberId]);
+
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => setTick((t) => t + 1), 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const isToday = plan?.date === getTodayIST();
+  const refreshFavorites = () => {
+    if (!memberId) return;
+    fetch(`/api/favorites?member_id=${memberId}`)
+      .then((r) => r.json())
+      .then((favs: MealFavorite[]) => {
+        setFavorites(favs);
+        setFavSet(new Set(favs.map((f) => f.dish_name)));
+      })
+      .catch(() => {});
+  };
 
   const currentMember = MEMBERS.find((m) => m.id === memberId);
 
@@ -274,6 +331,46 @@ export default function HomePage() {
               {genError && (
                 <p className="text-red-400 text-xs mt-3">{genError}</p>
               )}
+
+              {/* Favorites section */}
+              {favorites.length > 0 && (
+                <div className="w-full mt-8 space-y-2">
+                  <p className="text-xs text-[var(--text-secondary)] font-semibold uppercase tracking-wide text-left">
+                    Your Favorites
+                  </p>
+                  {favorites.slice(0, 5).map((fav) => (
+                    <div
+                      key={fav.id}
+                      className="bg-[var(--bg-card)] rounded-xl px-4 py-3 border border-[var(--border-color)] flex items-center justify-between gap-3"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <span className="text-[10px] text-[var(--text-muted)] uppercase">{fav.meal_slot}</span>
+                        <p className="text-sm text-[var(--text-primary)] truncate">{fav.dish_name}</p>
+                      </div>
+                      <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={async () => {
+                          const tomorrow = getTomorrowIST();
+                          await fetch("/api/lock-slot", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              date: tomorrow,
+                              meal_slot: fav.meal_slot,
+                              member_scope: "default",
+                              value: fav.dish_name,
+                            }),
+                          });
+                          toast.success(`Pinned for tomorrow's ${fav.meal_slot}`);
+                        }}
+                        className="flex-shrink-0 text-[11px] font-medium px-3 py-1.5 rounded-full bg-[var(--bg-button)] text-[var(--text-secondary)] border border-[var(--border-subtle)] hover:bg-[var(--bg-button-hover)]"
+                      >
+                        Pin for tomorrow
+                      </motion.button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </motion.div>
 
             {/* Show last plan as fallback */}
@@ -336,6 +433,11 @@ export default function HomePage() {
               {plan.day} &middot; {plan.date}
             </motion.p>
 
+            {/* Skip Me Bar */}
+            <motion.div variants={staggerItem}>
+              <SkipMeBar date={plan.date} memberId={memberId} onSkipChanged={fetchPlan} />
+            </motion.div>
+
             {/* Breakfast Section */}
             <motion.div variants={staggerItem}>
               <MealSection
@@ -348,12 +450,21 @@ export default function HomePage() {
                 showReactions
                 showRefresh
                 showFinishRate
+                showFavorites
+                favorites={favSet}
+                onFavoriteToggle={refreshFavorites}
+                skippedByMe={skipContexts.includes("breakfast")}
                 onSlotUpdated={fetchPlan}
                 initialReaction={(reactions["breakfast"]?.reaction === "ok" || reactions["breakfast"]?.reaction === "suggest_change") ? reactions["breakfast"].reaction : null}
                 initialComment={reactions["breakfast"]?.comment || ""}
                 allReactions={allReactions}
               />
             </motion.div>
+            {isToday && isMealTimePassed("breakfast") && !finishLogs["breakfast"] && plan.plan_data.breakfast?.default && (
+              <motion.div variants={staggerItem}>
+                <MealRatingPrompt date={plan.date} mealSlot="breakfast" memberId={memberId} dishName={plan.plan_data.breakfast.default} onRated={fetchPlan} />
+              </motion.div>
+            )}
 
             {/* Nyra's Lunch Box */}
             {plan.plan_data.lunchbox_nyra && (
@@ -375,12 +486,21 @@ export default function HomePage() {
                 showReactions
                 showRefresh
                 showFinishRate
+                showFavorites
+                favorites={favSet}
+                onFavoriteToggle={refreshFavorites}
+                skippedByMe={skipContexts.includes("lunch")}
                 onSlotUpdated={fetchPlan}
                 initialReaction={(reactions["lunch"]?.reaction === "ok" || reactions["lunch"]?.reaction === "suggest_change") ? reactions["lunch"].reaction : null}
                 initialComment={reactions["lunch"]?.comment || ""}
                 allReactions={allReactions}
               />
             </motion.div>
+            {isToday && isMealTimePassed("lunch") && !finishLogs["lunch"] && plan.plan_data.lunch?.default && (
+              <motion.div variants={staggerItem}>
+                <MealRatingPrompt date={plan.date} mealSlot="lunch" memberId={memberId} dishName={plan.plan_data.lunch.default} onRated={fetchPlan} />
+              </motion.div>
+            )}
 
             {/* Dinner Section */}
             <motion.div variants={staggerItem}>
@@ -392,6 +512,10 @@ export default function HomePage() {
                 date={plan.date}
                 memberId={memberId}
                 showReactions
+                showFavorites
+                favorites={favSet}
+                onFavoriteToggle={refreshFavorites}
+                skippedByMe={skipContexts.includes("dinner")}
                 timing={{
                   kamini: plan.plan_data.dinner_time_kamini || "~7 PM",
                   nyra: plan.plan_data.dinner_time_nyra || "~7:30 PM",
@@ -402,6 +526,11 @@ export default function HomePage() {
                 allReactions={allReactions}
               />
             </motion.div>
+            {isToday && isMealTimePassed("dinner") && !finishLogs["dinner"] && plan.plan_data.dinner?.default && (
+              <motion.div variants={staggerItem}>
+                <MealRatingPrompt date={plan.date} mealSlot="dinner" memberId={memberId} dishName={plan.plan_data.dinner.default} onRated={fetchPlan} />
+              </motion.div>
+            )}
 
             {plan.plan_data.need_to_buy && (
               <motion.div

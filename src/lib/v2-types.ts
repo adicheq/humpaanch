@@ -107,6 +107,16 @@ export interface DishTag {
   updated_at: string;
 }
 
+export interface MealFavorite {
+  id: string;
+  family_id: string;
+  member_id: string;
+  dish_name: string;
+  meal_slot: string;
+  source_date: string | null;
+  created_at: string;
+}
+
 export interface DishVariation {
   name: string;
   tags: string[];

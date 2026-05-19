@@ -24,6 +24,21 @@ export function isVotingOpen(): boolean {
   return hours < 17 || (hours === 17 && minutes < 20);
 }
 
+export function getCurrentISTHour(): number {
+  const now = new Date();
+  const istOffset = 5.5 * 60 * 60 * 1000;
+  const istNow = new Date(now.getTime() + istOffset + now.getTimezoneOffset() * 60 * 1000);
+  return istNow.getHours();
+}
+
+export function isMealTimePassed(mealSlot: string): boolean {
+  const hour = getCurrentISTHour();
+  if (mealSlot === "breakfast" || mealSlot === "lunchbox") return hour >= 10;
+  if (mealSlot === "lunch") return hour >= 15;
+  if (mealSlot === "dinner") return hour >= 22;
+  return false;
+}
+
 export function verifyApiKey(request: Request): boolean {
   const apiKey = request.headers.get("x-api-key");
   return apiKey === process.env.API_SECRET;
