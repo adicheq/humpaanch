@@ -129,11 +129,54 @@ export async function POST(request: NextRequest) {
 Plan ONE day: ${dayName}, ${targetDate}.
 
 ## Family
-1. **Kamini** (42, F): pure veg, NO eggs. Health-conscious. Dinner before 7 PM, prefers SOMETHING DIFFERENT FROM SABZI-ROTI (soups, salads, bowls, wraps, dosa, thepla, sandwiches). Loves variety in breakfast — overnight oats, smoothie bowls, millet dosa, ragi porridge, chia pudding, sprouts chaat, thepla, quinoa upma, fruit bowls, avocado toast. Eats onion/garlic/aloo.
-2. **Riya** (28, F): veg + eggs. Loves eggs at breakfast. Comes home 8:30 PM after gym, hungry.
-3. **Arth** (30, M): veg + eggs. Easy.
-4. **Aditya** (42, M): veg + eggs. NO karela, lauki, tori, parval, tinda. Loves South Indian.
-5. **Nyra** (8, F): VERY finicky. ONLY: aloo, bhindi, roti, fruits, milk, cereals, french fries, paratha, pasta. NO dal, NO chawal.
+
+1. **Kamini** (42, F): pure veg, NO eggs. Health-conscious. Eats onion/garlic/aloo.
+   - BREAKFAST ROTATION (pick a DIFFERENT one each day, never repeat 2 days in a row):
+     Overnight oats (vary toppings: mango+coconut, apple+cinnamon, banana+peanut butter, fig+honey, berry+chia),
+     Smoothie bowl (mango-banana, mixed berry, spinach-banana, papaya),
+     Millet dosa + chutney, Ragi porridge + jaggery, Chia pudding + seasonal fruit,
+     Sprouts chaat, Thepla + curd + pickle, Quinoa upma, Moong dal chilla + green chutney,
+     Besan chilla + mint chutney, Poha + sev + peanuts, Sabudana khichdi,
+     Daliya/broken wheat upma, Muesli + yogurt + fruits, Idli + sambhar,
+     Jowar dosa + chutney, Bajra roti + garlic chutney, Avocado toast, Fruit bowl + granola + nuts
+   - DINNER (before 7 PM, must feel DIFFERENT from lunch — not sabzi-roti):
+     Tomato soup + grilled sandwich, Minestrone + bread, Mixed veg soup + paneer tikka,
+     Mushroom soup + multigrain toast, Corn soup + grilled veggies, Palak soup + cheese toast,
+     Pumpkin soup + seeds + toast, Beetroot soup + toast, Moong dal soup + salad,
+     Vegetable stew + appam, Dalia khichdi, Masala oats, Millet khichdi,
+     Thepla + yogurt + pickle, Stuffed bell peppers, Vegetable wrap + hummus,
+     Buddha bowl (grain + roasted veggies + dressing), Quinoa bowl (vary: Mexican/Mediterranean/Indian),
+     Paneer tikka wrap, Dosa + chutney (light dinner), Idli + sambhar (light dinner),
+     Veg clear soup + stir-fried veggies + brown rice
+
+2. **Riya** (28, F): veg + eggs. Loves eggs at breakfast (vary: omelette, bhurji, boiled, poached, egg sandwich, egg paratha, shakshuka, anda curry on toast). Comes home 8:30 PM after gym — needs protein-rich, satisfying dinner.
+
+3. **Arth** (30, M): veg + eggs. Easy, eats most things.
+
+4. **Aditya** (42, M): veg + eggs. NO karela, lauki, tori, parval, tinda. Loves South Indian. Suggest south indian at least 2x/week.
+
+5. **Nyra** (8, F): Finicky eater. NO dal, NO chawal (rice), NO eggs, NO meat.
+   - BREAKFAST ROTATION (must vary — do NOT default to Chocos+Milk every day):
+     Milk + Chocos + fruit, Cornflakes + milk + banana, Butter toast + milk,
+     Idli + butter/ketchup, Mini uttapam + ketchup, Plain dosa + butter,
+     Suji halwa + milk, Banana milkshake + toast, Bread + Nutella/jam + milk,
+     Pancake + honey + milk, Ragi malt (sweetened) + banana, Toast + cheese + milk,
+     Mini paratha + curd, Upma (mild, buttery) + milk
+   - LUNCHBOX (must vary — do NOT default to Aloo Paratha every day):
+     Aloo paratha + curd/ketchup + fruit, Mini cheese sandwiches + fruit,
+     Pasta (penne/fusilli) with butter or red sauce, Plain hakka noodles,
+     Bread rolls with aloo stuffing, Mini veg cutlets + bread,
+     Cheese paratha + ketchup + fruit, Roti + bhindi (she loves bhindi),
+     Bread pizza (cheese+tomato), Macaroni + cheese, Corn sandwich + fruit,
+     Paneer paratha + ketchup, Mini aloo tikkis + ketchup + fruit,
+     Veg frankie/roll, Pasta salad (mayo-based, mild), Idli + butter (in box)
+   - LUNCH: Roti + sabzi from her safe list (aloo jeera, aloo matar, bhindi fry, aloo gobhi, aloo palak, paneer bhurji, matar paneer — vary the prep and combination)
+   - DINNER (~7:30 PM, simple and appealing):
+     Roti + aloo sabzi (vary: jeera/matar/dum/gobhi), Roti + bhindi fry,
+     Pasta with red sauce, Noodles with veggies, Mini dosa + chutney,
+     French fries + fruit bowl, Macaroni + cheese, Aloo paratha + curd,
+     Toast + cheese + soup (tomato), Paneer paratha + curd,
+     Bread pizza, Butter naan + paneer, Uttapam + ketchup
 
 ## Saved taste profiles
 ${JSON.stringify(tastesByMember, null, 2)}
@@ -175,6 +218,11 @@ ${recentPlans
 
 Kamini's last 5 dinners: ${kaminiRecent || "—"}
 
+Nyra's last 5 breakfasts: ${recentPlans.map((p) => p.plan_data?.breakfast?.nyra).filter(Boolean).slice(0, 5).join(" | ") || "—"}
+Nyra's last 5 lunchboxes: ${recentPlans.map((p) => p.plan_data?.lunchbox_nyra).filter(Boolean).slice(0, 5).join(" | ") || "—"}
+Nyra's last 5 dinners: ${recentPlans.map((p) => p.plan_data?.dinner?.nyra).filter(Boolean).slice(0, 5).join(" | ") || "—"}
+Kamini's last 5 breakfasts: ${recentPlans.map((p) => p.plan_data?.breakfast?.kamini).filter(Boolean).slice(0, 5).join(" | ") || "—"}
+
 ## DIVERSITY ANALYSIS (last ${diversity.total_meals_analyzed} meals)
 ${diversityHint(diversity) || "Balanced so far."}
 
@@ -190,17 +238,19 @@ ${
 }
 
 ## RULES
-1. Do NOT repeat any dish from the last 3 days, especially the dishes listed above.
-2. Be CREATIVE with Kamini's breakfast: rotate through overnight oats, smoothie bowl, millet dosa, ragi porridge, chia pudding, sprouts chaat, thepla, quinoa upma, fruit bowl + granola, avocado toast.
-3. Kamini's dinner MUST be different from sabzi-roti and different from her last 5 dinners.
-4. Push toward UNDERUSED categories from the diversity report.
-5. AVOID over-used categories.
-6. Honor active context (travel, fasting, guests, exam, going_out).
-7. Skip dishes whose key ingredient is in the pantry-low/out list.
-8. Honor every locked slot exactly.
-9. Honor active requests.
-10. Avoid dishes that recently got 'refused'/'ate_some' for that member.
-11. Include a "need_to_buy" list for anything that may not be at home.
+1. Do NOT repeat any dish from the last 3 days for ANY member. Check history carefully.
+2. **NYRA VARIETY IS CRITICAL**: Do NOT give her Chocos+Milk for breakfast more than 2x/week. Do NOT give her Aloo Paratha for lunchbox more than 2x/week. Rotate through the full list above. She CAN eat many things — the list has 14+ breakfast options and 15+ lunchbox options. USE THEM.
+3. **KAMINI VARIETY IS CRITICAL**: Do NOT give her Overnight Oats for breakfast more than 2x/week. Do NOT give her Quinoa Salad or the same soup for dinner more than 1x/week. Rotate through the full rotation lists above.
+4. Kamini's dinner MUST be different from sabzi-roti and different from her last 5 dinners listed above.
+5. Push toward UNDERUSED categories from the diversity report.
+6. AVOID over-used categories.
+7. Honor active context (travel, fasting, guests, exam, going_out).
+8. Skip dishes whose key ingredient is in the pantry-low/out list.
+9. Honor every locked slot exactly.
+10. Honor active requests.
+11. Avoid dishes that recently got 'refused'/'ate_some' for that member.
+12. Include a "need_to_buy" list for anything that may not be at home.
+13. For Nyra's lunchbox: pick something she will ACTUALLY finish at school. It must be easy to eat, room-temperature friendly, and appealing to an 8-year-old.
 
 ## Output
 Return ONLY valid JSON, no markdown:

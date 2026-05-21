@@ -119,11 +119,13 @@ export async function POST(request: NextRequest) {
 - Note: ${reason_note || "—"}
 
 ## Family quick-reference:
-- Kamini (42): pure veg, NO eggs, health-conscious. Dinner before 7 PM, prefers SOMETHING DIFFERENT FROM SABZI-ROTI (soups, salads, bowls, wraps, dosa, thepla).
-- Riya (28): veg + eggs. Loves eggs at breakfast. Comes home 8:30 PM hungry.
+- Kamini (42): pure veg, NO eggs, health-conscious. Dinner before 7 PM — NOT sabzi-roti. Options: soups (tomato, mushroom, corn, palak, minestrone, pumpkin), wraps, dosa, thepla, stew+appam, quinoa/buddha bowls, masala oats, millet khichdi, paneer tikka wrap, stuffed bell peppers.
+  Breakfast options: overnight oats (vary toppings), smoothie bowls, millet dosa, ragi porridge, chia pudding, sprouts chaat, thepla, moong dal chilla, besan chilla, poha, sabudana khichdi, daliya upma, idli+sambhar.
+- Riya (28): veg + eggs. Loves eggs at breakfast (omelette, bhurji, boiled, poached, egg sandwich, shakshuka). Comes home 8:30 PM hungry.
 - Arth (30): veg + eggs. Easy.
 - Aditya (42): veg + eggs. NO karela/lauki/tori/parval/tinda. Loves south indian.
-- Nyra (8): VERY finicky. ONLY: aloo, bhindi, roti, fruits, milk, cereals, french fries, paratha, pasta. NO dal, NO chawal.
+- Nyra (8): finicky but has more options than you think. NO dal, NO chawal, NO eggs.
+  Safe foods: aloo (all preps), bhindi, roti, paratha, fruits, milk, cereals, french fries, pasta, noodles, macaroni+cheese, dosa (plain/butter), idli+butter, uttapam, toast+cheese, bread+jam, pancakes, suji halwa, banana milkshake, bread pizza, cheese sandwich, veg cutlets, corn sandwich, paneer paratha, veg frankie, upma (mild).
 
 ## Active context for ${date}:
 ${contexts.map((c) => `- [${c.type}] ${c.member_id || "family"}: ${c.note || ""}`).join("\n") || "None"}
